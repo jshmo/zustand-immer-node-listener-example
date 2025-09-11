@@ -10,54 +10,28 @@ type TreeNode = {
   children: TreeNode[];
 };
 
-export const store = createStore<{
-  tree: TreeNode;
-  getNode: (id: string) => TreeNode | null;
-  setNode: (id: string, value: string) => void;
-  getDataField: (id: string) => string | null;
-  buildSubscriber: (id: string) => () => TreeNode["data"] | null;
-  resetWholeTree: () => void;
-}>((set, get) => {
-  return {
-    tree: {
+const createTree = () => ({
+  data: {
+    id: "root",
+    core: "foo",
+  },
+  children: [
+    {
       data: {
-        id: "root",
-        core: "foo",
+        id: "c1",
+        core: "bar",
       },
       children: [
         {
           data: {
-            id: "c1",
-            core: "bar",
+            id: "c1-c1",
+            core: "bar+baz",
           },
           children: [
             {
               data: {
-                id: "c1-c1",
-                core: "bar+baz",
-              },
-              children: [
-                {
-                  data: {
-                    id: "c1-c1-c1",
-                    core: "bar+baz+qux",
-                  },
-                  children: [],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          data: {
-            id: "c2",
-            core: "bar",
-          },
-          children: [
-            {
-              data: {
-                id: "c2-c1",
-                core: "bar+baz",
+                id: "c1-c1-c1",
+                core: "bar+baz+qux",
               },
               children: [],
             },
@@ -65,6 +39,33 @@ export const store = createStore<{
         },
       ],
     },
+    {
+      data: {
+        id: "c2",
+        core: "bar",
+      },
+      children: [
+        {
+          data: {
+            id: "c2-c1",
+            core: "bar+baz",
+          },
+          children: [],
+        },
+      ],
+    },
+  ],
+});
+
+export const store = createStore<{
+  tree: TreeNode;
+  getNode: (id: string) => TreeNode | null;
+  setNode: (id: string, value: string) => void;
+  buildSubscriber: (id: string) => () => TreeNode["data"] | null;
+  resetWholeTree: () => void;
+}>((set, get) => {
+  return {
+    tree: createTree(),
     getNode: (id: string) => {
       if (id === "root") {
         return get().tree;
@@ -79,14 +80,10 @@ export const store = createStore<{
       }
       return null;
     },
-    getDataField: (id: string) => {
-      const node = get().getNode(id);
-      return node?.data.core ?? null;
-    },
     resetWholeTree: () => {
       set((base) =>
         produce(base, (draft) => {
-          draft.tree = structuredClone(base.tree);
+          draft.tree = createTree();
         })
       );
     },
