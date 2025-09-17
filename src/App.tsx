@@ -26,7 +26,7 @@ const App = () => {
           <div>
             <TreeListener />
             <br />
-            <h1>Node Listeners</h1>
+            <h1>Node (Tree) Listeners</h1>
             <div>
               <RootListener />
               <br />
@@ -35,6 +35,12 @@ const App = () => {
               <GrandChildListener />
               <br />
               <GreatGrandChildListener />
+            </div>
+          </div>
+          <div>
+            <h1>Node (Flat) Listeners</h1>
+            <div>
+              <ChildFlatNodeListener />
             </div>
           </div>
           <div>
@@ -47,10 +53,11 @@ const App = () => {
             <br />
             <GreatGrandChildDataFieldListener />
           </div>
-          <div>
+          {/* <div>
             <h1>Global (Flat) Node Listeners</h1>
             <GlobalFlatNodeListener />
           </div>
+          */}
           <div>
             <h1>Global (Tree) Node Listeners</h1>
             <GlobalTreeNodeListener />
@@ -84,6 +91,17 @@ function GlobalFlatNodeListener() {
 
 function GlobalTreeNodeListener() {
   const node = useStore(store, (store) => store.tree.children[0].children[0]);
+  return <div>{JSON.stringify(node)}</div>;
+}
+
+function ChildFlatNodeListener() {
+  const buildNodeSubscriber = useStore(
+    store,
+    (store) => store.buildFlatSubscriber
+  );
+  const nodeSubscriber = buildNodeSubscriber("c1-c1");
+  const node = nodeSubscriber();
+
   return <div>{JSON.stringify(node)}</div>;
 }
 

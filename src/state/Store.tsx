@@ -74,6 +74,7 @@ export const store = createStore<{
   getNode: (id: string) => TreeNode | null;
   setNode: (id: string, value: string) => void;
   buildSubscriber: (id: string) => () => TreeNode["data"] | null;
+  buildFlatSubscriber: (id: string) => () => TreeNode["data"] | null;
   resetWholeTree: () => void;
 }>((set, get) => {
   return {
@@ -124,6 +125,24 @@ export const store = createStore<{
 
             if (node) {
               setNode(node.data);
+            }
+          });
+          return () => unsub();
+        }, []);
+        return node;
+      };
+    },
+    buildFlatSubscriber: (id: string) => {
+      return () => {
+        const [node, setNode] = useState<TreeNode["data"] | null>(
+          get().nodes[id]?.data ?? null
+        );
+        useEffect(() => {
+          const unsub = store.subscribe((state) => {
+            console.log("firing");
+            const newNode = state.nodes[id];
+            if (newNode) {
+              setNode(newNode.data);
             }
           });
           return () => unsub();
