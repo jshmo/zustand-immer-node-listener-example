@@ -57,8 +57,20 @@ const createTree = () => ({
   ],
 });
 
+function createNodes(tree: TreeNode) {
+  const nodes: { [key: string]: Omit<TreeNode, "children"> } = {};
+  const queue = [tree];
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    nodes[node.data.id] = { data: node.data };
+    queue.push(...node.children);
+  }
+  return nodes;
+}
+
 export const store = createStore<{
   tree: TreeNode;
+  nodes: { [key: string]: Omit<TreeNode, "children"> };
   getNode: (id: string) => TreeNode | null;
   setNode: (id: string, value: string) => void;
   buildSubscriber: (id: string) => () => TreeNode["data"] | null;
@@ -66,6 +78,7 @@ export const store = createStore<{
 }>((set, get) => {
   return {
     tree: createTree(),
+    nodes: createNodes(createTree()),
     getNode: (id: string) => {
       if (id === "root") {
         return get().tree;
@@ -96,6 +109,7 @@ export const store = createStore<{
             mutateRef = mutateRef.children[index];
           }
           mutateRef.data.core = value;
+          draft.nodes[id].data.core = value;
         })
       );
     },
