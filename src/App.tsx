@@ -48,8 +48,12 @@ const App = () => {
             <GreatGrandChildDataFieldListener />
           </div>
           <div>
-            <h1>Global Node Listeners</h1>
-            <GlobalNodeListener />
+            <h1>Global (Flat) Node Listeners</h1>
+            <GlobalFlatNodeListener />
+          </div>
+          <div>
+            <h1>Global (Tree) Node Listeners</h1>
+            <GlobalTreeNodeListener />
           </div>
         </div>
 
@@ -73,8 +77,13 @@ function TreeListener() {
   );
 }
 
-function GlobalNodeListener() {
+function GlobalFlatNodeListener() {
   const node = useStore(store, (store) => store.nodes["c1-c1"]);
+  return <div>{JSON.stringify(node)}</div>;
+}
+
+function GlobalTreeNodeListener() {
+  const node = useStore(store, (store) => store.tree.children[0].children[0]);
   return <div>{JSON.stringify(node)}</div>;
 }
 
