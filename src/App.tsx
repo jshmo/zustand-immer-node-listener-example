@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { memo, useState, Children } from "react";
 import { store } from "./state/Store";
 import { useStore } from "zustand";
+
+const MemoComp = memo((props: { children: React.ReactNode }) => {
+  return <div>{props.children}</div>;
+});
 
 const App = () => {
   return (
@@ -13,151 +17,216 @@ const App = () => {
           borderBottom: "1px solid black",
         }}
       ></div>
-      <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "row" }}>
         <div
           style={{
-            width: "15%",
+            width: "25%",
             borderRight: "1px solid black",
+            padding: 10,
           }}
         >
           <LHPanel />
         </div>
-        <div style={{ width: "60%", padding: 25 }}>
-          <div>
-            <TreeListener />
-            <br />
-            <h1>Node (Tree) Listeners</h1>
-            <div>
-              <RootListener />
-              <br />
-              <ChildListener />
-              <br />
-              <GrandChildListener />
-              <br />
-              <GreatGrandChildListener />
-            </div>
-          </div>
-          <div>
-            <h1>Node (Flat) Listeners</h1>
-            <div>
-              <ChildFlatNodeListener />
-            </div>
-          </div>
-          <div>
-            <h1>Data Field Listeners</h1>
-            <RootDataFieldListener />
-            <br />
-            <ChildDataFieldListener />
-            <br />
-            <GrandChildDataFieldListener />
-            <br />
-            <GreatGrandChildDataFieldListener />
-          </div>
-          {/* <div>
-            <h1>Global (Flat) Node Listeners</h1>
-            <GlobalFlatNodeListener />
-          </div>
-          */}
-          <div>
-            <h1>Global (Tree) Node Listeners</h1>
-            <GlobalTreeNodeListener />
-          </div>
-        </div>
+        <div style={{ width: "75%" }}>
+          <MemoComp>
+            <div
+              style={{
+                padding: 25,
+                overflowY: "auto",
+                height: "calc(100vh - 50px)",
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ width: "50%" }}>
+                  <h1>Deep Architecture</h1>
+                </div>
+                <div style={{ width: "50%" }}>
+                  <h1>Flat Architecture</h1>
+                </div>
+              </div>
+              <ExampleSection title="Global Listener">
+                <Deep_TreeListener />
+                <Flat_TreeListener />
+              </ExampleSection>
+              <ExampleSection title="Node Listeners (drilled in)">
+                <div>
+                  <Deep_Node_DrilledIn nodeId="root" />
+                  <br />
+                  <Deep_Node_DrilledIn nodeId="c1" />
+                  <br />
+                  <Deep_Node_DrilledIn nodeId="c1-c1" />
+                  <br />
+                  <Deep_Node_DrilledIn nodeId="c1-c1-c1" />
+                </div>
+                <div>
+                  <Flat_Node_DrilledIn nodeId="root" />
+                  <br />
+                  <Flat_Node_DrilledIn nodeId="c1" />
+                  <br />
+                  <Flat_Node_DrilledIn nodeId="c1-c1" />
+                  <br />
+                  <Flat_Node_DrilledIn nodeId="c1-c1-c1" />
+                </div>
+              </ExampleSection>
+              <ExampleSection title="Node Listeners (direct)">
+                <div>
+                  <Deep_Node_Direct nodeId="root" />
+                  <br />
+                  <Deep_Node_Direct nodeId="c1" />
+                  <br />
+                  <Deep_Node_Direct nodeId="c1-c1" />
+                  <br />
+                  <Deep_Node_Direct nodeId="c1-c1-c1" />
+                </div>
+                <div>
+                  <Flat_Node_Direct nodeId="root" />
+                  <br />
+                  <Flat_Node_Direct nodeId="c1" />
+                  <br />
+                  <Flat_Node_Direct nodeId="c1-c1" />
+                  <br />
+                  <Flat_Node_Direct nodeId="c1-c1-c1" />
+                </div>
+              </ExampleSection>
 
-        <div style={{ width: "25%", borderLeft: "1px solid black" }}>
-          {/* <RHPanel /> */}
+              <ExampleSection title="Property Listeners (drilled in)">
+                <div>
+                  <Deep_NodeProperty_DrilledIn nodeId="root" />
+                  <br />
+                  <Deep_NodeProperty_DrilledIn nodeId="c1" />
+                  <br />
+                  <Deep_NodeProperty_DrilledIn nodeId="c1-c1" />
+                  <br />
+                  <Deep_NodeProperty_DrilledIn nodeId="c1-c1-c1" />
+                </div>
+                <div>
+                  <Flat_NodeProperty_DrilledIn nodeId="root" />
+                  <br />
+                  <Flat_NodeProperty_DrilledIn nodeId="c1" />
+                  <br />
+                  <Flat_NodeProperty_DrilledIn nodeId="c1-c1" />
+                  <br />
+                  <Flat_NodeProperty_DrilledIn nodeId="c1-c1-c1" />
+                </div>
+              </ExampleSection>
+              <ExampleSection title="Property Listeners (direct)">
+                <div>
+                  <Deep_NodeProperty_Direct nodeId="root" />
+                  <br />
+                  <Deep_NodeProperty_Direct nodeId="c1" />
+                  <br />
+                  <Deep_NodeProperty_Direct nodeId="c1-c1" />
+                  <br />
+                  <Deep_NodeProperty_Direct nodeId="c1-c1-c1" />
+                </div>
+                <div>
+                  <Flat_NodeProperty_Direct nodeId="root" />
+                  <br />
+                  <Flat_NodeProperty_Direct nodeId="c1" />
+                  <br />
+                  <Flat_NodeProperty_Direct nodeId="c1-c1" />
+                  <br />
+                  <Flat_NodeProperty_Direct nodeId="c1-c1-c1" />
+                </div>
+              </ExampleSection>
+            </div>
+          </MemoComp>
         </div>
       </div>
     </>
   );
 };
 
-function TreeListener() {
-  const tree = useStore(store, (store) => store.tree);
+function ExampleSection({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}) {
   return (
-    <div style={{ marginTop: 16 }}>
-      <h1>store.tree listener</h1>
+    <div
+      style={{
+        paddingTop: 10,
+        paddingBottom: 10,
+        marginTop: 5,
+        marginBottom: 5,
+      }}
+    >
+      <h2>{title}</h2>
       <hr />
-      <div style={{ margin: "25px 0" }}>{JSON.stringify(tree)}</div>
-      <hr />
+      <div style={{ display: "flex", flexDirection: "row", columnGap: 15 }}>
+        <div style={{ width: "50%" }}>{Children.toArray(children)[0]}</div>
+        <div style={{ width: "50%" }}>{Children.toArray(children)[1]}</div>
+      </div>
     </div>
   );
 }
 
-function GlobalFlatNodeListener() {
-  const node = useStore(store, (store) => store.nodes["c1-c1"]);
-  return <div>{JSON.stringify(node)}</div>;
-}
-
-function GlobalTreeNodeListener() {
-  const node = useStore(store, (store) => store.tree.children[0].children[0]);
-  return <div>{JSON.stringify(node)}</div>;
-}
-
-function ChildFlatNodeListener() {
-  const buildNodeSubscriber = useStore(
-    store,
-    (store) => store.buildFlatSubscriber
+function Deep_TreeListener() {
+  const tree = useStore(store, (store) => store.tree);
+  return (
+    <div>
+      <pre>{JSON.stringify(tree, null, 2)}</pre>
+    </div>
   );
-  const nodeSubscriber = buildNodeSubscriber("c1-c1");
-  const node = nodeSubscriber();
+}
 
+function Deep_Node_Direct({ nodeId }: { nodeId: string }) {
+  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
+  const getNode = buildSubscriber(nodeId);
+  const tree = getNode();
+  return <div>{JSON.stringify(tree)}</div>;
+}
+
+function Deep_Node_DrilledIn({ nodeId }: { nodeId: string }) {
+  const node = useStore(store, (store) => store.getNode(nodeId));
   return <div>{JSON.stringify(node)}</div>;
 }
 
-function RootListener() {
+function Deep_NodeProperty_DrilledIn({ nodeId }: { nodeId: string }) {
+  const node = useStore(store, (store) => store.getNode(nodeId)?.data.core);
+  return <div>{JSON.stringify(node)}</div>;
+}
+
+function Deep_NodeProperty_Direct({ nodeId }: { nodeId: string }) {
   const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("root");
+  const getNode = buildSubscriber(nodeId);
+  const node = getNode();
+  return <div>{JSON.stringify(node?.core)}</div>;
+}
+
+function Flat_TreeListener() {
+  const tree = useStore(store, (store) => store.nodes);
+  return (
+    <div>
+      <pre>{JSON.stringify(tree, null, 2)}</pre>
+    </div>
+  );
+}
+
+function Flat_Node_Direct({ nodeId }: { nodeId: string }) {
+  const buildSubscriber = useStore(store, (store) => store.buildFlatSubscriber);
+  const getNode = buildSubscriber(nodeId);
   const tree = getNode();
   return <div>{JSON.stringify(tree)}</div>;
 }
 
-function ChildListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1");
-  const tree = getNode();
-  return <div>{JSON.stringify(tree)}</div>;
-}
-function GrandChildListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1-c1");
-  const tree = getNode();
-  return <div>{JSON.stringify(tree)}</div>;
+function Flat_Node_DrilledIn({ nodeId }: { nodeId: string }) {
+  const node = useStore(store, (store) => store.nodes[nodeId]);
+  return <div>{JSON.stringify(node)}</div>;
 }
 
-function GreatGrandChildListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1-c1-c1");
-  const tree = getNode();
-  return <div>{JSON.stringify(tree)}</div>;
+function Flat_NodeProperty_DrilledIn({ nodeId }: { nodeId: string }) {
+  const node = useStore(store, (store) => store.nodes[nodeId]?.data.core);
+  return <div>{JSON.stringify(node)}</div>;
 }
 
-function RootDataFieldListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("root");
-  const tree = getNode();
-  return <div>Root: {tree?.core}</div>;
-}
-
-function ChildDataFieldListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1");
-  const tree = getNode();
-  return <div>Child: {tree?.core}</div>;
-}
-
-function GrandChildDataFieldListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1-c1");
-  const tree = getNode();
-  return <div>GrandChild: {tree?.core}</div>;
-}
-
-function GreatGrandChildDataFieldListener() {
-  const buildSubscriber = useStore(store, (store) => store.buildSubscriber);
-  const getNode = buildSubscriber("c1-c1-c1");
-  const tree = getNode();
-  return <div>GreatGrandChild: {tree?.core}</div>;
+function Flat_NodeProperty_Direct({ nodeId }: { nodeId: string }) {
+  const buildSubscriber = useStore(store, (store) => store.buildFlatSubscriber);
+  const getNode = buildSubscriber(nodeId);
+  const node = getNode();
+  return <div>{JSON.stringify(node?.core)}</div>;
 }
 
 function LHPanel() {
